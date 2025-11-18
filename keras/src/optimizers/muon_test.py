@@ -87,37 +87,37 @@ class MuonTest(testing.TestCase):
     def test_muon_weight_decay(self):
         variable = backend.Variable([[1.0, 2.0], [3.0, 4.0]])
         weight_decay = 0.01
-        except_varable = variable - variable * weight_decay
+        expected_variable = variable - variable * weight_decay
         optimizer = Muon(learning_rate=1.0, weight_decay=weight_decay)
         optimizer._apply_weight_decay([variable])
-        self.assertAllClose(variable, except_varable, rtol=1e-4, atol=1e-4)
+        self.assertAllClose(variable, expected_variable, rtol=1e-4, atol=1e-4)
 
     def test_adamw_weight_decay(self):
         variable = backend.Variable(2.0)
         weight_decay = 0.01
-        except_varable = variable - variable * weight_decay
+        expected_variable = variable - variable * weight_decay
         optimizer = Muon(learning_rate=1.0, adam_weight_decay=weight_decay)
         optimizer._apply_weight_decay([variable])
 
-        self.assertAllClose(variable, except_varable, rtol=1e-4, atol=1e-4)
+        self.assertAllClose(variable, expected_variable, rtol=1e-4, atol=1e-4)
 
     def test_rms_matching_none(self):
         opt = Muon(rms_rate=None)
         x = ops.ones((4, 4))
         want = x
-        self.assertAllClose(opt.rms_macthing(x), want)
+        self.assertAllClose(opt.rms_matching(x), want)
 
     def test_rms_matching_2d(self):
         opt = Muon(rms_rate=0.2)
         x = ops.ones((4, 2))
         want = x * 0.2 * 2
-        self.assertAllClose(opt.rms_macthing(x), want)
+        self.assertAllClose(opt.rms_matching(x), want)
 
     def test_rms_matching_3d(self):
         opt = Muon(rms_rate=0.1)
         x = ops.ones((2, 4, 4))
         want = x
-        self.assertAllClose(opt.rms_macthing(x), want)
+        self.assertAllClose(opt.rms_matching(x), want)
 
     @pytest.mark.skipif(
         backend.backend() != "tensorflow", reason="Runs only on TF backend"

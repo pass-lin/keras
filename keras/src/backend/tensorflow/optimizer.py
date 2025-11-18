@@ -111,17 +111,17 @@ class TFOptimizer(KerasAutoTrackable, base_optimizer.BaseOptimizer):
         )
 
     def _backend_update_step(self, grads, trainable_variables, learning_rate):
-        new_trainable_variables = []
-        for v in trainable_variables:
-            # add variable.path attribute to new variable
+        def _prepare_var(v):
             if isinstance(v, backend.Variable):
                 new_v = v.value
                 new_v.path = v.path
             else:
                 new_v = v
                 new_v.path = v.name
-            new_trainable_variables.append(new_v)
-        grads_and_vars = list(zip(grads, new_trainable_variables))
+            return new_v
+
+        trainable_variables = [_prepare_var(v) for v in trainable_variables]
+        grads_and_vars = list(zip(grads, trainable_variables))
         grads_and_vars = self._all_reduce_sum_gradients(grads_and_vars)
         tf.__internal__.distribute.interim.maybe_merge_call(
             self._distributed_tf_update_step,

@@ -20,7 +20,7 @@ class Muon(optimizer.Optimizer):
     The Muon optimizer can use both the Muon update step or the
     AdamW update step based on the following:
 
-    - For any variable that isn't 2D or 3D , the AdamW step
+    - For any variable that isn't 2D or 3D, the AdamW step
         will be used. This is not configurable.
     - If the argument `exclude_embeddings` (defaults to `True`) is set
     to `True`, the AdamW step will be used.
@@ -204,7 +204,7 @@ class Muon(optimizer.Optimizer):
 
         self.assign_sub(
             variable,
-            lr * self.rms_macthing(update),
+            lr * self.rms_matching(update),
         )
 
     def _adamw_update_step(self, gradient, variable, learning_rate):
@@ -248,7 +248,7 @@ class Muon(optimizer.Optimizer):
         X = ops.transpose(X, temp_order)
         return X
 
-    def rms_macthing(self, x):
+    def rms_matching(self, x):
         """
         You can check the details at https://arxiv.org/pdf/2502.16982.
         For a 2D matrix of size m,the analytical solution provided in the paper

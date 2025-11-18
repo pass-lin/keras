@@ -113,9 +113,8 @@ def filter_traceback(fn):
             return fn(*args, **kwargs)
 
         filtered_tb = None
-        return fn(*args, **kwargs)
         try:
-            pass
+            return fn(*args, **kwargs)
         except Exception as e:
             filtered_tb = _process_traceback_frames(e.__traceback__)
             # To get the full stack trace, call:
