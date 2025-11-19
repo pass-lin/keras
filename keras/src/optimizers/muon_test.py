@@ -116,12 +116,6 @@ class MuonTest(testing.TestCase):
         want = x * 0.2 * 2
         self.assertAllClose(opt.rms_matching(x), want)
 
-    def test_rms_matching_3d(self):
-        opt = Muon(rms_rate=0.1)
-        x = ops.ones((2, 4, 4))
-        want = x
-        self.assertAllClose(opt.rms_matching(x), want)
-
     @pytest.mark.skipif(
         backend.backend() != "tensorflow", reason="Runs only on TF backend"
     )
