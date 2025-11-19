@@ -20,7 +20,7 @@ class Muon(optimizer.Optimizer):
     The Muon optimizer can use both the Muon update step or the
     AdamW update step based on the following:
 
-    - For any variable that isn't 2D or 3D, the AdamW step
+    - For any variable that isn't 2D, the AdamW step
         will be used. This is not configurable.
     - If the argument `exclude_embeddings` (defaults to `True`) is set
     to `True`, the AdamW step will be used.
@@ -69,7 +69,7 @@ class Muon(optimizer.Optimizer):
             It is recommended to use the default value
         adam_lr_ratio: Float, the ratio of the learning rate when
                 using Adam to the main learning rate.
-                it is recommended to set it to 0.1
+                it is recommended to set it to 1
         momentum: Float, momentum used by internal SGD.
         ns_steps: Integer, number of Newton-Schulz iterations to run.
         nesterov: Boolean, whether to use Nesterov-style momentum
@@ -77,8 +77,8 @@ class Muon(optimizer.Optimizer):
         `rms_rate`: A trick from https://arxiv.org/abs/2502.16982.
             This parameter can enhance the stability of Muon,
             allowing it to use the same learning rate and weight decay as Adam.
-            It is disabled by default.
-            If you wish to enable it, it is recommended to set it to `0.2`.
+            It is default  to set it to `0.2`
+            If you wish to disable it, it is set None.
     """
 
     def __init__(
@@ -88,7 +88,7 @@ class Muon(optimizer.Optimizer):
         adam_beta_2=0.999,
         adam_weight_decay=0.004,
         epsilon=1e-7,
-        weight_decay=0.1,
+        weight_decay=0.004,
         clipnorm=None,
         clipvalue=None,
         global_clipnorm=None,
@@ -103,11 +103,11 @@ class Muon(optimizer.Optimizer):
         muon_a=3.4445,
         muon_b=-4.7750,
         muon_c=2.0315,
-        adam_lr_ratio=0.1,
+        adam_lr_ratio=1,
         momentum=0.95,
-        ns_steps=6,
+        ns_steps=5,
         nesterov=True,
-        rms_rate=None,
+        rms_rate=0.2,
         **kwargs,
     ):
         super().__init__(
@@ -143,7 +143,7 @@ class Muon(optimizer.Optimizer):
         # To use it with 4D convolutional filters,
         # it works well to just flatten their last 3 dimensions.
         # any {0,1}-D parameters should all be optimized by adam
-        if not 1 < len(variable.shape) < 4:
+        if len(variable.shape) != 2:
             return True
         if self.exclude_embeddings and "embedding" in variable.path.lower():
             return True
@@ -254,10 +254,8 @@ class Muon(optimizer.Optimizer):
         For a 2D matrix of size m,the analytical solution provided in the paper
         rate * x * sqrt(max(n,m))
         """
-        if self.rms_rate is None or len(x.shape) != 2:
-            # KellerJordan version in muon github
-            # https://github.com/KellerJordan/Muon
-            return x * max(1, x.shape[-2] / x.shape[-1]) ** 0.5
+        if self.rms_rate is None:
+            return x
         # moonlight version
         # https://github.com/MoonshotAI/Moonlight/blob/master/examples/toy_train.py
         return x * ops.sqrt(ops.maximum(x.shape[0], x.shape[1])) * self.rms_rate

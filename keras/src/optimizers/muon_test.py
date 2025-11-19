@@ -69,7 +69,10 @@ class MuonTest(testing.TestCase):
         optimizer.build([vars])
         optimizer._muon_update_step(grads, vars, 0.5)
         self.assertAllClose(
-            vars, [[1.13, 1.51], [2.57, 4.06]], rtol=1e-2, atol=1e-2
+            vars,
+            [[0.988775, 1.887053], [2.873428, 3.97035]],
+            rtol=1e-2,
+            atol=1e-2,
         )
 
     def test_clip_norm(self):
