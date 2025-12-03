@@ -132,7 +132,7 @@ class Muon(optimizer.Optimizer):
         # To use it with 4D convolutional filters,
         # it works well to just flatten their last 3 dimensions.
         # any {0,1}-D parameters should all be optimized by adam
-        if not 1 < len(variable.shape) < 4:
+        if not 1 < len(variable.shape) < 3:
             return True
         if self.exclude_embeddings and "embedding" in variable.path.lower():
             return True
